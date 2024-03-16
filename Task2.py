@@ -19,16 +19,20 @@ test_input_pd = test_pd[input_data_names]
 test_output_pd = gender_submission["Survived"]
 
 
+normalisation = False
+def normalize_column(column):
+    return (column - column.min()) / (column.max() - column.min())
+
 def preprocess_data(df):
     df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
 
     # One-hot encode 'Embarked' and 'Pclass'
     df = pd.get_dummies(df, columns=['Embarked', 'Pclass'], prefix=['Embarked', 'Pclass'])
 
-    # Normalize 'Fare', 'SibSp', and 'Parch'
-    df['Fare'] = df['Fare'] / 512
-    df['SibSp'] = df['SibSp'] / 8
-    df['Parch'] = df['Parch'] / 6
+    if normalisation:
+        df['Fare'] = df['Fare'].apply(lambda x: (x - df['Fare'].min()) / (df['Fare'].max() - df['Fare'].min()))
+        df['SibSp'] = df['SibSp'].apply(lambda x: (x - df['SibSp'].min()) / (df['SibSp'].max() - df['SibSp'].min()))
+        df['Parch'] = df['Parch'].apply(lambda x: (x - df['Parch'].min()) / (df['Parch'].max() - df['Parch'].min()))
 
     return df.values.astype(np.float32)
 
